@@ -1,0 +1,8 @@
+.github/
+.pre-commit-config.yaml
+
+Dockerfile
+
+Makefile
+
+requirements-dev.txt
