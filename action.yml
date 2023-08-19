@@ -1,11 +1,34 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'LLM Code Review'
+description: 'Let LLM model review your code'
+author: 'Louis Le (luiyen)'
 inputs:
-  milliseconds: # change this
+  githubToken:
+    description: 'Github token to access the repo'
     required: true
-    description: 'input description here'
+  apiKey:
+    description: 'Huggingface access token from [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)'
+    required: true
     default: 'default value if applicable'
+  url: 
+    description: 'Huggingface Starchat API URL or other custom API URL. Defaults to [https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta](https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta)'
+    required: false
+    default: 'https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta'
+  maxNewTokens:
+    description: "The amount of new tokens to be generated, this does not include the input length it is a estimate of the size of generated text you want. Each new tokens slows down the request, so look for balance between response times and length of text generated."
+    required: false
+    default: "1024"
+  tempature:
+    description: "The temperature of the sampling operation. 1 means regular sampling, 0 means always take the highest score, 100.0 is getting closer to uniform probability."
+    required: false
+    default: "0.2"
+  topK:
+    description: "Integer to define the top tokens considered within the sample operation to create new text"
+    required: false
+    default: "50"
+  topP:
+    description: "Float to define the tokens that are within the sample operation of text generation. Add tokens in the sample for more probable to least probable until the sum of the probabilities is greater than top_p."
+    required: false
+    default: "0.95"
 runs:
   using: 'node16'
   main: 'dist/index.js'

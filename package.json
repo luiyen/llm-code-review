@@ -25,7 +25,12 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.10.0"
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "@huggingface/inference": "^2.6.1",
+    "minimatch": "^7.4.6",
+    "node-fetch-polyfill": "^2.0.6",
+    "parse-diff": "^0.11.1"
   },
   "devDependencies": {
     "@types/node": "^20.5.6",
