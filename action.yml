@@ -8,7 +8,6 @@ inputs:
   apiKey:
     description: 'Huggingface access token from [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)'
     required: true
-    default: 'default value if applicable'
   url: 
     description: 'Huggingface Starchat API URL or other custom API URL. Defaults to [https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta](https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta)'
     required: false

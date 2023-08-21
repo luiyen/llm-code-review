@@ -1,8 +1,14 @@
+import './fetch-polyfill'
 import * as core from '@actions/core'
-import github from '@actions/github'
+import {context} from '@actions/github'
 import {generate} from './generate'
 import {minimatch} from 'minimatch'
 import parseDiff, {Chunk, File} from 'parse-diff'
+import {Octokit} from '@octokit/rest'
+import fetch from 'node-fetch'
+
+const GITHUB_TOKEN: string = core.getInput('githubToken', {required: true})
+const octokit = new Octokit({auth: GITHUB_TOKEN, request: {fetch}})
 
 interface ReviewResponse {
   lineNumber: string
@@ -86,11 +92,9 @@ async function reviewCode(
 
 async function run(): Promise<void> {
   try {
-    const githubToken = core.getInput('githubToken', {required: true})
-    const prNumber = github.context.payload.pull_request?.number || 0
-    const repo = github.context.repo
-    const octokit = github.getOctokit(githubToken)
-    const diff = await octokit.rest.pulls.get({
+    const prNumber = context.payload.pull_request?.number || 0
+    const repo = context.repo
+    const diff = await octokit.pulls.get({
       owner: repo.owner,
       repo: repo.repo,
       pull_number: prNumber,
