@@ -86,13 +86,14 @@ def get_review(
     )
     for chunked_diff in chunked_diff_list:
         question=chunked_diff
-        template = """Provide a concise summary of the bug found in the code, describing its characteristics,
-                      location, and potential effects on the overall functionality and performance of the application.
-                      Present the potential issues and errors first, following by the most important findings, in your summary
-                      Important: Include block of code / diff in the summary also the line number.
-                      ```
-                      {question}
-                      ```
+        template = """Provide a concise summary of the bug found in the code, describing its characteristics, 
+        location, and potential effects on the overall functionality and performance of the application.
+        Present the potential issues and errors first, following by the most important findings, in your summary
+        Important: Include block of code / diff in the summary also the line number.
+
+        Diff:
+
+        {question}
         """
 
         prompt = PromptTemplate(template=template, input_variables=["question"])
@@ -106,12 +107,12 @@ def get_review(
 
     question="\n".join(chunked_reviews)
     template = """Summarize the following file changed in a pull request submitted by a developer on GitHub,
-                  focusing on major modifications, additions, deletions, and any significant updates within the files.
-                  Do not include the file name in the summary and list the summary with bullet points.
-                  Important: Include block of code / diff in the summary also the line number.
-                  ```
-                  {question}
-                  ```
+    focusing on major modifications, additions, deletions, and any significant updates within the files.
+    Do not include the file name in the summary and list the summary with bullet points.
+    Important: Include block of code / diff in the summary also the line number.
+    
+    Diff:
+    {question}
     """
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)
