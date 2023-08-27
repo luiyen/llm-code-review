@@ -69,7 +69,7 @@ jobs:
           githubRepository: ${{ github.repository }}
           githubPullRequestNumber: ${{ github.event.pull_request.number }}
           gitCommitHash: ${{ github.event.pull_request.head.sha }}
-          repoId: "meta-llama/Llama-2-7b-chat-hf"
+          repoId: "codellama/CodeLlama-7b-hf"
           temperature: "0.2"
           maxNewTokens: "250"
           topK: "50"
