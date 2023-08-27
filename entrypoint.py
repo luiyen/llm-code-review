@@ -66,7 +66,7 @@ def get_review(
         repo_id: str,
         diff: str,
         temperature: float,
-        max_tokens: int,
+        max_new_tokens: int,
         top_p: float,
         top_k: int,
         prompt_chunk_size: int
@@ -79,16 +79,21 @@ def get_review(
     llm = HuggingFaceHub(
         repo_id=repo_id,
         model_kwargs={"temperature": temperature,
-                      "max_new_tokens": max_tokens,
+                      "max_new_tokens": max_new_tokens,
                       "top_p": top_p,
                       "top_k": top_k},
                       huggingfacehub_api_token=os.getenv("API_KEY")
     )
     for chunked_diff in chunked_diff_list:
         question=chunked_diff
-        template = """Review this code changes {question}
-
-        Answer: Let's think step by step."""
+        template = """Provide a concise summary of the bug found in the code, describing its characteristics,
+                      location, and potential effects on the overall functionality and performance of the application.
+                      Present the potential issues and errors first, following by the most important findings, in your summary
+                      Important: Include block of code / diff in the summary also the line number.
+                      ```
+                      {question}
+                      ```
+        """
 
         prompt = PromptTemplate(template=template, input_variables=["question"])
         llm_chain = LLMChain(prompt=prompt, llm=llm)
@@ -100,7 +105,14 @@ def get_review(
         return chunked_reviews, chunked_reviews[0]
 
     question="\n".join(chunked_reviews)
-    template = """Summarize the code review: {question}"""
+    template = """Summarize the following file changed in a pull request submitted by a developer on GitHub,
+                  focusing on major modifications, additions, deletions, and any significant updates within the files.
+                  Do not include the file name in the summary and list the summary with bullet points.
+                  Important: Include block of code / diff in the summary also the line number.
+                  ```
+                  {question}
+                  ```
+    """
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)
     summarized_review = llm_chain.run(question)
@@ -125,7 +137,7 @@ def format_review_comment(summarized_review: str, chunked_reviews: List[str]) ->
 @click.option("--diff-chunk-size", type=click.INT, required=False, default=3500, help="Pull request diff")
 @click.option("--repo-id", type=click.STRING, required=False, default="gpt-3.5-turbo", help="Model")
 @click.option("--temperature", type=click.FLOAT, required=False, default=0.1, help="Temperature")
-@click.option("--max-new-tokens", type=click.INT, required=False, default=512, help="Max tokens")
+@click.option("--max-new-tokens", type=click.INT, required=False, default=250, help="Max tokens")
 @click.option("--top-p", type=click.FLOAT, required=False, default=1.0, help="Top N")
 @click.option("--top-k", type=click.INT, required=False, default=1.0, help="Top T")
 @click.option("--log-level", type=click.STRING, required=False, default="INFO", help="Presence penalty")
@@ -134,7 +146,7 @@ def main(
         diff_chunk_size: int,
         repo_id: str,
         temperature: float,
-        max_tokens: int,
+        max_new_tokens: int,
         top_p: float,
         top_k: int,
         log_level: str
@@ -149,7 +161,7 @@ def main(
         diff=diff,
         repo_id=repo_id,
         temperature=temperature,
-        max_tokens=max_tokens,
+        max_new_tokens=max_new_tokens,
         top_p=top_p,
         top_k=top_k,
         prompt_chunk_size=diff_chunk_size

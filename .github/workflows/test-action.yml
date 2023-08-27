@@ -53,9 +53,9 @@ jobs:
           githubRepository: ${{ github.repository }}
           githubPullRequestNumber: ${{ github.event.pull_request.number }}
           gitCommitHash: ${{ github.event.pull_request.head.sha }}
-          repoId: "HuggingFaceH4/starchat-beta"
+          repoId: "microsoft/codereviewer"
           temperature: "0.2"
-          maxNewTokens: "1024"
+          maxNewTokens: "250"
           topK: "50"
           topP: "0.95"
           pullRequestDiff: |-
