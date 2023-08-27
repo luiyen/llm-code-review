@@ -1,105 +1,81 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# llm-code-review-action
+A container GitHub Action to review a pull request by HuggingFace's LLM Model.
 
-# Create a JavaScript Action using TypeScript
+If the size of a pull request is over the maximum chunk size of the HuggingFace API, the Action will split the pull request into multiple chunks and generate review comments for each chunk.
+And then the Action summarizes the review comments and posts a review comment to the pull request.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+## Pre-requisites
+We have to set a GitHub Actions secret `HUGGING_FACE_API_KEY` to use the HuggingFace API so that we securely pass it to the Action.
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+## Inputs
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+- `apiKey`: The HuggingFace API key to access the API.
+- `githubToken`: The GitHub token to access the GitHub API.
+- `githubRepository`: The GitHub repository to post a review comment.
+- `githubPullRequestNumber`: The GitHub pull request number to post a review comment.
+- `gitCommitHash`: The git commit hash to post a review comment.
+- `pullRequestDiff`: The diff of the pull request to generate a review comment.
+- `pullRequestDiffChunkSize`: The chunk size of the diff of the pull request to generate a review comment.
+- `repoId`: LLM repository id on HuggingFace.
+- `temperature`: The temperature to generate a review comment.
+- `topP`: The top_p to generate a review comment.
+- `topK`: The top_k to generate a review comment.
+- `maxNewTokens`: The max_tokens to generate a review comment.
+- `logLevel`: The log level to print logs.
 
-## Create an action from this template
+As you might know, a model of HuggingFace has limitation of the maximum number of input tokens.
+So we have to split the diff of a pull request into multiple chunks, if the size of the diff is over the limitation.
+We can tune the chunk size based on the model we use.
 
-Click the `Use this Template` and provide the new repo details for your action
+## Example usage
+Here is an example to use the Action to review a pull request of the repository.
+The actual file is located at [`.github/workflows/test-action.yml`](.github/workflows/test-action.yml).
 
-## Code in Main
-
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
-
-Install the dependencies  
-```bash
-$ npm install
-```
-
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+name: "Test Code Review"
+
+on:
+  pull_request:
+    paths-ignore:
+      - "*.md"
+      - "LICENSE"
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Get diff of the pull request"
+        id: get_diff
+        shell: bash
+        env:
+          PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
+        run: |-
+          git fetch origin "${{ env.PULL_REQUEST_HEAD_REF }}:${{ env.PULL_REQUEST_HEAD_REF }}"
+          git checkout "${{ env.PULL_REQUEST_HEAD_REF }}"
+          git diff "origin/${{ env.PULL_REQUEST_HEAD_REF }}" > "diff.txt"
+          # shellcheck disable=SC2086
+          echo "diff=$(cat "diff.txt")" >> $GITHUB_ENV
+      - uses: yu-iskw/gpt-code-review-action@v0.3.0
+        name: "Code Review"
+        id: review
+        with:
+          apiKey: ${{ secrets.API_KEY }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          githubRepository: ${{ github.repository }}
+          githubPullRequestNumber: ${{ github.event.pull_request.number }}
+          gitCommitHash: ${{ github.event.pull_request.head.sha }}
+          repoId: "HuggingFaceH4/starchat-beta"
+          temperature: "0.2"
+          maxNewTokens: "1024"
+          topK: "50"
+          topP: "0.95"
+          pullRequestDiff: |-
+            ${{ steps.get_diff.outputs.pull_request_diff }}
+          pullRequestChunkSize: "3500"
+          logLevel: "DEBUG"
 ```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action

@@ -8,15 +8,27 @@ inputs:
   apiKey:
     description: 'Huggingface access token from [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)'
     required: true
-  url: 
-    description: 'Huggingface Starchat API URL or other custom API URL. Defaults to [https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta](https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta)'
-    required: false
-    default: 'https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta'
+  githubRepository:
+    description: "The GitHub repository to use for the action"
+    required: true
+    default: "${{ github.repository }}"
+  githubPullRequestNumber:
+    description: "The GitHub pull request number to use for the action"
+    required: true
+    default: "${{ github.event.pull_request.number }}"
+  gitCommitHash:
+    description: "The GitHub commit hash to use for the action"
+    required: true
+    default: "${{ github.event.pull_request.head.sha }}"
+  repoId:
+    description: "LLM model"
+    required: true
+    default: "HuggingFaceH4/starchat-beta"
   maxNewTokens:
     description: "The amount of new tokens to be generated, this does not include the input length it is a estimate of the size of generated text you want. Each new tokens slows down the request, so look for balance between response times and length of text generated."
     required: false
     default: "1024"
-  tempature:
+  temperature:
     description: "The temperature of the sampling operation. 1 means regular sampling, 0 means always take the highest score, 100.0 is getting closer to uniform probability."
     required: false
     default: "0.2"
@@ -28,6 +40,32 @@ inputs:
     description: "Float to define the tokens that are within the sample operation of text generation. Add tokens in the sample for more probable to least probable until the sum of the probabilities is greater than top_p."
     required: false
     default: "0.95"
+  pullRequestDiff:
+    description: "Pull request diff"
+    required: true
+  pullRequestChunkSize:
+    description: "Pull request chunk size"
+    required: false
+    default: "3500"
+  logLevel:
+    description: "Log level"
+    required: false
+    default: "INFO"
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: docker
+  image: Dockerfile
+  env:
+    API_KEY: ${{ inputs.apiKey }}
+    GITHUB_TOKEN: ${{ inputs.githubToken }}
+    GITHUB_REPOSITORY: ${{ inputs.githubRepository }}
+    GITHUB_PULL_REQUEST_NUMBER: ${{ inputs.githubPullRequestNumber }}
+    GIT_COMMIT_HASH: ${{ inputs.gitCommitHash }}
+  args:
+    - "--repo-id=${{ inputs.repoId }}"
+    - "--temperature=${{ inputs.temperature }}"
+    - "--max-new-tokens=${{ inputs.maxNewTokens }}"
+    - "--top-p=${{ inputs.topP }}"
+    - "--top-k=${{ inputs.topK }}"
+    - "--diff-chunk-size=${{ inputs.pullRequestChunkSize }}"
+    - "--diff=${{ inputs.pullRequestDiff }}"
+    - "--log-level=${{ inputs.logLevel }}"
