@@ -23,7 +23,7 @@ inputs:
   repoId:
     description: "LLM model"
     required: true
-    default: "codellama/CodeLlama-7b-hf"
+    default: "codellama/CodeLlama-34b-Instruct-hf"
   maxNewTokens:
     description: "The amount of new tokens to be generated, this does not include the input length it is a estimate of the size of generated text you want. Each new tokens slows down the request, so look for balance between response times and length of text generated."
     required: false
