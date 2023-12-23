@@ -46,7 +46,7 @@ jobs:
           } >> $GITHUB_OUTPUT
       - uses: ./
         name: "Code Review"
-        id: review3
+        id: review
         with:
           apiKey: ${{ secrets.API_KEY }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
