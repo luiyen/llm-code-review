@@ -46,42 +46,6 @@ jobs:
           } >> $GITHUB_OUTPUT
       - uses: ./
         name: "Code Review"
-        id: review1
-        with:
-          apiKey: ${{ secrets.API_KEY }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          githubRepository: ${{ github.repository }}
-          githubPullRequestNumber: ${{ github.event.pull_request.number }}
-          gitCommitHash: ${{ github.event.pull_request.head.sha }}
-          repoId: "meta-llama/Llama-2-7b-chat-hf"
-          temperature: "0.2"
-          maxNewTokens: "250"
-          topK: "50"
-          topP: "0.95"
-          pullRequestDiff: |-
-            ${{ steps.get_diff.outputs.pull_request_diff }}
-          pullRequestChunkSize: "3500"
-          logLevel: "DEBUG"
-      - uses: ./
-        name: "Code Review"
-        id: review2
-        with:
-          apiKey: ${{ secrets.API_KEY }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          githubRepository: ${{ github.repository }}
-          githubPullRequestNumber: ${{ github.event.pull_request.number }}
-          gitCommitHash: ${{ github.event.pull_request.head.sha }}
-          repoId: "meta-llama/Llama-2-13b-chat-hf"
-          temperature: "0.2"
-          maxNewTokens: "250"
-          topK: "50"
-          topP: "0.95"
-          pullRequestDiff: |-
-            ${{ steps.get_diff.outputs.pull_request_diff }}
-          pullRequestChunkSize: "3500"
-          logLevel: "DEBUG"
-      - uses: ./
-        name: "Code Review"
         id: review3
         with:
           apiKey: ${{ secrets.API_KEY }}
@@ -89,7 +53,7 @@ jobs:
           githubRepository: ${{ github.repository }}
           githubPullRequestNumber: ${{ github.event.pull_request.number }}
           gitCommitHash: ${{ github.event.pull_request.head.sha }}
-          repoId: "codellama/CodeLlama-13b-hf"
+          repoId: "codellama/CodeLlama-34b-Instruct-hf"
           temperature: "0.2"
           maxNewTokens: "250"
           topK: "50"
