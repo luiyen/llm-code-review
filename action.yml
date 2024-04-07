@@ -1,5 +1,5 @@
 name: 'LLM Code Review'
-description: 'Let LLM model review your code'
+description: 'A container GitHub Action to review a pull request by HuggingFace LLM Model.'
 author: 'Louis Le (luiyen)'
 inputs:
   githubToken:
