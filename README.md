@@ -1,7 +1,8 @@
-# llm-code-review-action
+# hf-code-review-action
+## GitHub Action for Automating Code Review using HuggingFace
 _This is a fork of the GitHub project originally authored by (https://github.com/luiyen/llm-code-review)[https://github.com/luiyen/llm-code-review]. Aside from some trivial modifications, all credit and praise is due to @luiyen._
 
-A container GitHub Action to review a pull request by HuggingFace's LLM Model.
+A container GitHub Action to review a pull request using HuggingFace large-language models.
 
 If the size of a pull request is over the maximum chunk size of the HuggingFace API, the Action will split the pull request into multiple chunks and generate review comments for each chunk.
 And then the Action summarizes the review comments and posts a review comment to the pull request.
@@ -35,7 +36,7 @@ The actual file is located at [`.github/workflows/test-action.yml`](.github/work
 
 
 ```yaml
-name: "Test Code Review"
+name: "Test the HuggingFace Code Review"
 
 on:
   pull_request:
@@ -59,15 +60,13 @@ jobs:
         run: |-
           git fetch origin "${{ env.PULL_REQUEST_HEAD_REF }}:${{ env.PULL_REQUEST_HEAD_REF }}"
           git checkout "${{ env.PULL_REQUEST_HEAD_REF }}"
-          git diff "origin/${{ env.PULL_REQUEST_HEAD_REF }}" > "diff.txt"
-          # shellcheck disable=SC2086
-          echo "diff=$(cat "diff.txt")" >> $GITHUB_ENV
+          git diff "origin/${{ env.DEFAULT_BRANCH }}" > pr.diff
       - uses: jrgriffiniii/llm-code-review@v0.0.1
         name: "Code Review"
         id: review
         with:
-          apiKey: ${{ secrets.API_KEY }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          huggingFaceHubApiToken: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+          ghToken: ${{ secrets.GH_TOKEN }}
           githubRepository: ${{ github.repository }}
           githubPullRequestNumber: ${{ github.event.pull_request.number }}
           gitCommitHash: ${{ github.event.pull_request.head.sha }}
@@ -76,8 +75,7 @@ jobs:
           maxNewTokens: "250"
           topK: "50"
           topP: "0.95"
-          pullRequestDiff: |-
-            ${{ steps.get_diff.outputs.pull_request_diff }}
+          pullRequestDiff: "./pr.diff"
           pullRequestChunkSize: "3500"
           logLevel: "DEBUG"
 ```

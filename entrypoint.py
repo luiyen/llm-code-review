@@ -9,6 +9,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
 import json
 import os
 from typing import List
@@ -115,7 +116,7 @@ def get_review(
         [
             ("user", "Hello"),
             ("assistant", "Hello, I am a helpful AI software analyst. I assist software developers in reviewing and writing source code for applications."),
-            ("user", "Provide a very concise summary for the changes in a git diff generated from a pull request submitted by a developer on GitHub. Importantly, do not reference the usage of the `git diff` command or git commit hashes in the summary.\n\ngit diff: {diff}")
+            ("user", "Provide a very concise summary for the changes in a git diff generated from a pull request submitted by a developer on GitHub. Importantly, do not explain the 'git diff' command nor reference any git commit hashes in the summary.\n\ngit diff: {diff}")
         ],
     )
 
