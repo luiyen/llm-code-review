@@ -1,4 +1,6 @@
 # llm-code-review-action
+_This is a fork of the GitHub project originally authored by (https://github.com/luiyen/llm-code-review)[https://github.com/luiyen/llm-code-review]. Aside from some trivial modifications, all credit and praise is due to @luiyen._
+
 A container GitHub Action to review a pull request by HuggingFace's LLM Model.
 
 If the size of a pull request is over the maximum chunk size of the HuggingFace API, the Action will split the pull request into multiple chunks and generate review comments for each chunk.
@@ -60,7 +62,7 @@ jobs:
           git diff "origin/${{ env.PULL_REQUEST_HEAD_REF }}" > "diff.txt"
           # shellcheck disable=SC2086
           echo "diff=$(cat "diff.txt")" >> $GITHUB_ENV
-      - uses: luiyen/llm-code-review@v0.0.1
+      - uses: jrgriffiniii/llm-code-review@v0.0.1
         name: "Code Review"
         id: review
         with:

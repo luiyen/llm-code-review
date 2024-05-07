@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-name: "Test Code Review"
+name: "Test the HuggingFace Code Review"
 
 on:
   pull_request:
@@ -35,30 +35,22 @@ jobs:
         run: |-
           # Fetch the default branch
           git fetch origin "${{ env.DEFAULT_BRANCH }}"
-          # Exclude png files from diff
-          git diff "origin/${{ env.DEFAULT_BRANCH }}" ":(exclude)*.png" > "diff.txt"
-          # Put multi-line string into an environment variable
-          # shellcheck disable=SC2086
-          {
-            echo "pull_request_diff<<EOF";
-            cat "diff.txt";
-            echo 'EOF';
-          } >> $GITHUB_OUTPUT
+          # Include only source code files for the diff
+          git diff "origin/${{ env.DEFAULT_BRANCH }}" > pr.diff
       - uses: ./
-        name: "Code Review"
-        id: review
+        name: "HuggingFace Code Review"
+        id: hf_review
         with:
-          apiKey: ${{ secrets.API_KEY }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          huggingFaceHubApiToken: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+          ghToken: ${{ secrets.GH_TOKEN }}
           githubRepository: ${{ github.repository }}
           githubPullRequestNumber: ${{ github.event.pull_request.number }}
           gitCommitHash: ${{ github.event.pull_request.head.sha }}
-          repoId: "meta-llama/Llama-2-7b-chat-hf"
-          temperature: "0.2"
+          repoId: "mistralai/Mistral-7B-Instruct-v0.1"
+          temperature: "0.1"
           maxNewTokens: "250"
-          topK: "50"
+          topK: "10"
           topP: "0.95"
-          pullRequestDiff: |-
-            ${{ steps.get_diff.outputs.pull_request_diff }}
+          pullRequestDiff: "./pr.diff"
           pullRequestChunkSize: "3500"
           logLevel: "DEBUG"

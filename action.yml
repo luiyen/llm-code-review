@@ -1,11 +1,11 @@
-name: 'LLM Code Review'
+name: 'Automated Code Review using HuggingFace'
 description: 'A container GitHub Action to review a pull request by HuggingFace LLM Model.'
 author: 'Louis Le (luiyen)'
 inputs:
-  githubToken:
-    description: 'Github token to access the repo'
+  ghToken:
+    description: 'GitHub token to access the repo'
     required: true
-  apiKey:
+  huggingFaceHubApiToken:
     description: 'Huggingface access token from [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)'
     required: true
   githubRepository:
@@ -21,9 +21,9 @@ inputs:
     required: true
     default: "${{ github.event.pull_request.head.sha }}"
   repoId:
-    description: "LLM model"
+    description: "HuggingFace model repository ID"
     required: true
-    default: "meta-llama/Llama-2-7b-chat-hf"
+    default: "mistralai/Mistral-7B-Instruct-v0.1"
   maxNewTokens:
     description: "The amount of new tokens to be generated, this does not include the input length it is a estimate of the size of generated text you want. Each new tokens slows down the request, so look for balance between response times and length of text generated."
     required: false
@@ -55,8 +55,8 @@ runs:
   using: docker
   image: Dockerfile
   env:
-    API_KEY: ${{ inputs.apiKey }}
-    GITHUB_TOKEN: ${{ inputs.githubToken }}
+    HUGGINGFACEHUB_API_TOKEN: ${{ inputs.huggingFaceHubApiToken }}
+    GH_TOKEN: ${{ inputs.ghToken }}
     GITHUB_REPOSITORY: ${{ inputs.githubRepository }}
     GITHUB_PULL_REQUEST_NUMBER: ${{ inputs.githubPullRequestNumber }}
     GIT_COMMIT_HASH: ${{ inputs.gitCommitHash }}
@@ -66,6 +66,6 @@ runs:
     - "--max-new-tokens=${{ inputs.maxNewTokens }}"
     - "--top-p=${{ inputs.topP }}"
     - "--top-k=${{ inputs.topK }}"
-    - "--diff-chunk-size=${{ inputs.pullRequestChunkSize }}"
     - "--diff=${{ inputs.pullRequestDiff }}"
+    - "--diff-chunk-size=${{ inputs.pullRequestChunkSize }}"
     - "--log-level=${{ inputs.logLevel }}"

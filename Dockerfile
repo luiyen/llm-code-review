@@ -10,15 +10,18 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# FROM jrgriffiniii/llm-code-review:base
 FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install python packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entrypoint script
 COPY entrypoint.py .
+
+# Copy the git diff from the pull request
+COPY pr.diff .
 
 ENTRYPOINT ["python", "/app/entrypoint.py"]

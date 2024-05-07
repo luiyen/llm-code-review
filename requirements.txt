@@ -15,5 +15,9 @@ loguru==0.7.0
 
 requests==2.28.2
 
-langchain==0.0.274
-huggingface_hub==0.16.4
+huggingface-hub==0.22.2
+langchain==0.1.17
+langchain-community==0.0.36
+langchainhub==0.1.15
+sentence-transformers==2.7.0
+transformers==4.40.1
